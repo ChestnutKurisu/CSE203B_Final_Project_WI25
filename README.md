@@ -15,11 +15,11 @@ This repository contains the code and resources for my **CSE 203B WI25 (Convex O
 - **Key Contributions**:
   1. A formal **primal-dual** problem statement with **KKT conditions** for the sensor-based interpolation task.
   2. A robust implementation of ADMM-based solvers and gradient-based algorithms for both **Laplacian** and **Total Variation** formulations.
-  3. Detailed **cross-validation** results comparing convex methods to Kriging/IDW under varied hyperparameters (\(\lambda\), distance thresholds, \(k\)-NN) and evaluating performance in extreme smoke scenarios.
+  3. Detailed **cross-validation** results comparing convex methods to Kriging/IDW under varied hyperparameters ($\lambda$, distance thresholds, $k$-NN) and evaluating performance in extreme smoke scenarios.
 
 - **Main Insights**:  
   1. **Kriging** often performs best in moderate PM\textsubscript{2.5} regimes, but the **ADMM** approach remains competitive, especially with parameter tuning and potential extensions (e.g., total variation).  
-  2. Performance under **extreme smoke** (PM\textsubscript{2.5} \(\gg 300\)) reveals limitations due to sensor saturation and coverage gaps.  
+  2. Performance under **extreme smoke** (PM\textsubscript{2.5} $\gg 300$) reveals limitations due to sensor saturation and coverage gaps.  
   3. Graph-based methods are robust to moderate sensor removal, showing only small degradations even when 50% of sensors are withheld.
 
 ----
@@ -106,7 +106,7 @@ Below is a brief overview of the main files and directories:
    - The notebook automatically generates **figures** (saved in `figures/` by default) for:
      - Scatter plots of predicted vs. true PM\textsubscript{2.5}.
      - Spatial heatmaps comparing different interpolation methods.
-     - Parameter-sweep tables for \(\lambda\) or distance threshold variations.
+     - Parameter-sweep tables for $\lambda$ or distance threshold variations.
      - Error distribution boxplots, confusion matrices for AQI categories, etc.
 
 ----
@@ -115,11 +115,11 @@ Below is a brief overview of the main files and directories:
 
 - **Convex Formulation**:  
   The method solves the minimization problem:
-  \[
+  $$
     \min_{x\in \mathbb{R}^N}
     \;\;\frac{1}{2}\sum_{i\in \Omega}(x_i - y_i)^2 \;+\;\frac{\lambda}{2}x^T L x
-  \]
-  under a graph Laplacian regularization (or a total variation penalty \(\sum_{(i,j)\in E} |x_i-x_j|\) for piecewise-smooth fields).
+  $$
+  under a graph Laplacian regularization (or a total variation penalty $\sum_{(i,j)\in E} |x_i-x_j|$ for piecewise-smooth fields).
 
 - **Solvers**:
   1. **Gradient Descent** or **Proximal Updates** for the Laplacian-based smooth problem.
@@ -131,7 +131,7 @@ Below is a brief overview of the main files and directories:
   - Preprocessing merges lat/lon, timestamps, and filters out invalid or extreme saturations.
 
 - **Performance Metrics**:  
-  \(\text{MAE}\), \(\text{RMSE}\), correlation (\(r\)), and confusion matrices for AQI categories.
+  $\text{MAE}$, $\text{RMSE}$, correlation ($r$), and confusion matrices for AQI categories.
 
 ----
 
