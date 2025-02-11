@@ -1,13 +1,13 @@
 # Wildfire Smoke PM2.5 Modeling with Convex Optimization and Low-Cost Sensors
 
-This repository contains the code and resources for my **CSE 203B WI25 (Convex Optimization) final project**, which focuses on **modeling PM\textsubscript{2.5} data from wildfire smoke events** using **convex optimization** techniques on a graph. By representing sensor measurements as a graph signal (with nodes as sensor locations and edges reflecting spatial adjacency), I apply various convex regularizers (e.g., Laplacian smoothing, total variation) and compare them to classical interpolation baselines such as **Kriging**, **IDW**, and **Nearest Neighbor**. I also implement and evaluate iterative solvers like **ADMM** and **gradient descent** to solve the resulting optimization problems.
+This repository contains the code and resources for my **CSE 203B WI25 (Convex Optimization) final project**, which focuses on **modeling $\text{PM}_{2.5}$ data from wildfire smoke events** using **convex optimization** techniques on a graph. By representing sensor measurements as a graph signal (with nodes as sensor locations and edges reflecting spatial adjacency), I apply various convex regularizers (e.g., Laplacian smoothing, total variation) and compare them to classical interpolation baselines such as **Kriging**, **IDW**, and **Nearest Neighbor**. I also implement and evaluate iterative solvers like **ADMM** and **gradient descent** to solve the resulting optimization problems.
 
 ----
 
 ## Project Overview
 
 - **Objective**:  
-  Improve the reconstruction and denoising of wildfire PM\textsubscript{2.5} sensor data using:
+  Improve the reconstruction and denoising of wildfire $\text{PM}_{2.5}$ sensor data using:
   1. A convex optimization framework leveraging the graph Laplacian or TV-based regularization.
   2. Comparisons against classical geostatistical methods (Kriging, IDW) and naive baselines (Nearest Sensor, Simple Average).
   3. Real-world dataset from [Barkjohn *et al.* (2022)](https://www.mdpi.com/1424-8220/22/24/9669) on PurpleAir low-cost sensors, plus T640 references, processed for cross-validation experiments and parameter tuning.
@@ -18,8 +18,8 @@ This repository contains the code and resources for my **CSE 203B WI25 (Convex O
   3. Detailed **cross-validation** results comparing convex methods to Kriging/IDW under varied hyperparameters ($\lambda$, distance thresholds, $k$-NN) and evaluating performance in extreme smoke scenarios.
 
 - **Main Insights**:  
-  1. **Kriging** often performs best in moderate PM\textsubscript{2.5} regimes, but the **ADMM** approach remains competitive, especially with parameter tuning and potential extensions (e.g., total variation).  
-  2. Performance under **extreme smoke** (PM\textsubscript{2.5} $\gg 300$) reveals limitations due to sensor saturation and coverage gaps.  
+  1. **Kriging** often performs best in moderate $\text{PM}_{2.5}$ regimes, but the **ADMM** approach remains competitive, especially with parameter tuning and potential extensions (e.g., total variation).  
+  2. Performance under **extreme smoke** ($\text{PM}_{2.5}$ $\gg 300$) reveals limitations due to sensor saturation and coverage gaps.  
   3. Graph-based methods are robust to moderate sensor removal, showing only small degradations even when 50% of sensors are withheld.
 
 ----
@@ -107,7 +107,7 @@ Below is a brief overview of the main files and directories:
 
 3. **Results**:
    - The notebook automatically generates **figures** (saved in `figures/` by default) for:
-     - Scatter plots of predicted vs. true PM\textsubscript{2.5}.
+     - Scatter plots of predicted vs. true $\text{PM}_{2.5}$.
      - Spatial heatmaps comparing different interpolation methods.
      - Parameter-sweep tables for $\lambda$ or distance threshold variations.
      - Error distribution boxplots, confusion matrices for AQI categories, etc.
