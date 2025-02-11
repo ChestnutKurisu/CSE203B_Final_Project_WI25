@@ -11,8 +11,12 @@
 \usepackage{caption}                   % [UNCHANGED]
 \usepackage{subcaption}                % [UNCHANGED]
 \usepackage{color}                     % [UNCHANGED]
+
+\definecolor{darkgreen}{rgb}{0,0.5,0}
+
 \usepackage{url}                       % [UNCHANGED]
-\usepackage[hidelinks]{hyperref}       % [UNCHANGED]
+\usepackage{xurl} % Allows URLs to break automatically
+\usepackage[colorlinks=true, linkcolor=darkgreen, urlcolor=darkgreen, citecolor=darkgreen]{hyperref}
 \usepackage{setspace}                  % [UNCHANGED]
 \usepackage{amsmath}                   % [UNCHANGED]
 \usepackage{algorithm}                 % [UNCHANGED]
@@ -149,6 +153,20 @@ spatial correlation via a variogram, providing predictions that minimize mean-sq
 under stationarity assumptions. Inverse Distance Weighting (IDW) is a simpler interpolation 
 scheme, assigning weights inversely proportional to distance. Although both are widely used, 
 neither explicitly encodes the convex optimization perspective we adopt.
+
+\subsection{Physically Based Smoke Modeling and Fluid Simulation}
+\label{subsec:phys-based-smoke}
+
+While the present work focuses on \textit{data-driven} and \textit{sensor-based} interpolation of wildfire smoke PM\textsubscript{2.5}, it is instructive to note that another major line of research aims to simulate smoke via the underlying fluid dynamics equations. In computer graphics, for example, extensive effort has been devoted to solving the incompressible Navier--Stokes equations with numerical schemes specialized for real-time or offline visual effects~\cite{StamStableFluids, Fedkiw2001, FosterMetaxas1997}, capturing smoke-like phenomena such as buoyant rise, vortex shedding, and turbulence. 
+
+Broadly, these approaches discretize the velocity and smoke (or temperature) fields on a 3D grid and apply a projection method to enforce incompressibility:
+\begin{equation}
+\nabla \cdot \mathbf{v} = 0, \quad 
+\frac{\partial \mathbf{v}}{\partial t} + (\mathbf{v}\cdot \nabla)\mathbf{v} = -\frac{1}{\rho}\nabla p + \nu \nabla^2\mathbf{v} + \mathbf{f}_{\text{ext}},
+\end{equation}
+with $\mathbf{v}$ as velocity, $p$ as pressure, $\nu$ as viscosity, and $\mathbf{f}_{\text{ext}}$ encompassing buoyancy or vorticity-enhancing forces. Since numerical dissipation can degrade the swirling details characteristic of smoke, \emph{vorticity confinement} and higher-order advection schemes (e.g., MacCormack, BFECC)~\cite{Selle2008BFECC, MacCormack1971, Fedkiw2001} are frequently introduced to preserve small-scale turbulent eddies. 
+
+Though such \textbf{physically based} methods contrast with the \textbf{sensor-network interpolation} focus of this paper, both share an overarching interest in accurately capturing smoke distribution. Fluid-simulation codes are often validated by comparing outputs (velocity or smoke density fields) against real-world data or reference measurements~\cite{Ishida2020SmokeSuperRes}. In principle, one could combine physically simulated priors (e.g., from computational fluid dynamics or large eddy simulation) with sensor data, yielding hybrid models that exploit both numerical physics and measured PM\textsubscript{2.5} readings. Such an approach might reduce reliance on purely geostatistical methods or purely local sensor corrections and open new avenues for refining wildfire smoke exposure estimates at fine spatial scales. Future expansions of the present study could explore bridging these physically based solvers with the graph-based interpolation pipelines discussed here.
 
 \subsection{Additional Literature Review on Wildfire Smoke Modeling}  % [UNCHANGED]
 \label{sec:litreview}
@@ -660,6 +678,172 @@ consistently with reference monitors in initial tests, whereas simpler methods m
 greater variance or bias, especially at high smoke levels.
 
 %-----------------------------------------------------------------
+%       VI.1 ALGORITHMIC IMPLEMENTATION & COMPLEXITY
+%-----------------------------------------------------------------
+\section{Algorithmic Implementation and Complexity}
+\label{sec:alg-implementation-complexity}
+
+This section details the primary computational algorithms used in our study, accompanied by pseudo-code (Algorithm~\ref{alg:laplace}, \ref{alg:grad}, and \ref{alg:admm}). We also discuss their computational complexity with respect to the number of sensors $N$ (i.e., graph nodes) and the number of edges $E$ in the sensor network graph.
+
+%-----------------------------------------------------------------
+%       VI.1.1: Laplacian Interpolation
+%-----------------------------------------------------------------
+\subsection{Hard-Constraint Laplacian Interpolation}
+
+\noindent
+\textbf{Goal:} Solve 
+\[
+\begin{cases}
+x_i = y_i \quad & \text{for all observed nodes } i\in\Omega,\\
+(Lx)_j = 0 \quad & \text{for missing nodes } j\notin\Omega,
+\end{cases}
+\]
+where $L$ is the graph Laplacian and $\Omega$ is the set of observed indices.
+
+\begin{algorithm}[H]
+\caption{Hard-Constraint Laplacian Interpolation}
+\label{alg:laplace}
+\begin{algorithmic}[1]
+\Require Graph Laplacian $L \in \mathbb{R}^{N\times N}$, partial data $\{(i,y_i)\}_{i\in\Omega}$, maximum iterations $\text{MaxIters}$, tolerance $\epsilon$
+\State Initialize $x \gets \text{mean}(\{y_i : i\in \Omega\})$ for unobserved nodes 
+\State For $i \in \Omega$, set $x_i \gets y_i$ (anchor observed values)
+\For{$\text{iter} = 1,\dots,\text{MaxIters}$}
+   \State $x_{\text{old}} \gets x$
+   \For{each $j \notin \Omega$} 
+      \State $x_j \gets x_j - \frac{(Lx)_j}{L_{jj}}$ 
+         \Comment{Enforce $(Lx)_j=0$ for unobserved node}
+   \EndFor
+   \State Fix $x_i = y_i$ for $i\in \Omega$ again (hard constraints)
+   \If{$\|\,x - x_{\text{old}}\,\| < \epsilon$}
+      \State \textbf{break}
+   \EndIf
+\EndFor
+\State \Return $x$
+\end{algorithmic}
+\end{algorithm}
+
+\paragraph{Complexity.} 
+\begin{itemize}
+    \item \emph{Graph construction:} Building the Laplacian $L$ typically requires $O(N^2)$ in the worst case (distance thresholding) or $O(N \log N)$ with more efficient neighbor search (e.g., $k$-d trees, $k$-NN).  
+    \item \emph{Iteration:} Each iteration updates all unobserved $j\notin \Omega$. Each $(Lx)_j$ can be computed in $O(\deg(j))$ time. Summed over $j$, this is $O(E)$ per iteration.  
+    \item \emph{Total:} If the method takes $K_{\mathrm{Lapl}}$ iterations to converge, overall runtime is roughly $O(E \cdot K_{\mathrm{Lapl}})$. 
+\end{itemize}
+
+%-----------------------------------------------------------------
+%       VI.1.2: Proximal Gradient Descent
+%-----------------------------------------------------------------
+\subsection{Proximal Gradient for Soft-Penalty Formulation}
+
+\noindent
+\textbf{Goal:} Minimize
+\[
+\underset{x\in \mathbb{R}^N}{\min}\; \frac{1}{2}\sum_{i\in \Omega}\bigl(x_i - y_i\bigr)^2 \;+\; \frac{\lambda}{2}\, x^\top L\, x.
+\]
+Define a diagonal weight vector $\mathbf{w}$ where $w_i=1$ if $i\in\Omega$ (observed) and $0$ otherwise.
+
+\begin{algorithm}[H]
+\caption{Proximal Gradient Descent (Soft Penalty)}
+\label{alg:grad}
+\begin{algorithmic}[1]
+\Require Laplacian $L$, data $\{(i,y_i)\}_{i\in\Omega}$, regularization $\lambda$, step size $\alpha$, maximum iterations $\text{MaxIters}$, tolerance $\epsilon$
+\State Initialize $x \gets 0$ or random
+\For{$\text{iter} = 1,\dots,\text{MaxIters}$}
+   \State $x_{\text{old}} \gets x$
+   \State \textbf{Compute gradient:} $\nabla J(x) = \mathbf{w}\odot(x - y) + \lambda \, Lx$
+   \State \textbf{Gradient step:} $x \gets x - \alpha\,\nabla J(x)$
+   \If{$\|\,x - x_{\text{old}}\,\| < \epsilon$}
+      \State \textbf{break}
+   \EndIf
+\EndFor
+\State \Return $x$
+\end{algorithmic}
+\end{algorithm}
+
+\paragraph{Complexity.}
+\begin{itemize}
+    \item \emph{Gradient step:} Multiplying $Lx$ takes $O(E)$ if $L$ is stored in sparse format.  
+    \item \emph{Overall cost per iteration:} $O(E + N)$.  
+    \item \emph{Convergence rate:} Let $K_{\mathrm{grad}}$ be the number of gradient iterations. Then total cost $\approx O(K_{\mathrm{grad}}\cdot E)$. 
+\end{itemize}
+
+%-----------------------------------------------------------------
+%       VI.1.3: ADMM for Graph-Based Data Recovery
+%-----------------------------------------------------------------
+\subsection{ADMM for Graph-Based Data Recovery}
+
+\noindent
+\textbf{Goal:} Solve
+\[
+\min_{\mathbf{x}} \;\; \underbrace{\tfrac12\sum_{i\in \Omega}(x_i - y_i)^2}_{f(\mathbf{x})} 
+\;+\;\underbrace{\tfrac{\lambda}{2}\,\mathbf{x}^\top L\,\mathbf{x}}_{g(\mathbf{x})},
+\]
+by splitting the variable into $\mathbf{x}$ and $\mathbf{z}$ with constraint $\mathbf{x} = \mathbf{z}$. We form the augmented Lagrangian with Lagrange multiplier $\mathbf{u}$, and then iterate:
+
+\[
+\begin{aligned}
+\mathbf{x}^{(k+1)} &= \arg\min_{\mathbf{x}}\, \bigl[f(\mathbf{x}) + \tfrac{\rho}{2}\|\mathbf{x}-\mathbf{z}^{(k)}+\mathbf{u}^{(k)}\|^2\bigr],\\
+\mathbf{z}^{(k+1)} &= \arg\min_{\mathbf{z}}\, \bigl[g(\mathbf{z}) + \tfrac{\rho}{2}\|\mathbf{x}^{(k+1)}-\mathbf{z}+\mathbf{u}^{(k)}\|^2\bigr],\\
+\mathbf{u}^{(k+1)} &= \mathbf{u}^{(k)} \;+\;\bigl(\mathbf{x}^{(k+1)}-\mathbf{z}^{(k+1)}\bigr).
+\end{aligned}
+\]
+
+\begin{algorithm}[H]
+\caption{ADMM-based Data Recovery}
+\label{alg:admm}
+\begin{algorithmic}[1]
+\Require Graph Laplacian $L$, data $\{(i,y_i)\}_{i\in \Omega}$, parameter $\lambda$, penalty $\rho$, maximum iterations $\text{MaxIters}$, tolerance $\epsilon$
+\State Initialize $\mathbf{x}^{(0)} \gets 0$, $\mathbf{z}^{(0)} \gets 0$, $\mathbf{u}^{(0)} \gets 0$
+\For{$k = 0,\dots,\text{MaxIters}-1$}
+  \Statex \textbf{(a) Update $\mathbf{x}$:}
+  \For{each $i$}
+    \If{$i \in \Omega$}  \quad
+      $x_i \gets \frac{y_i + \rho\,[\,z_i^{(k)} - u_i^{(k)}\,]}{1 + \rho}$
+    \Else
+      $x_i \gets z_i^{(k)} - u_i^{(k)}$ \quad \Comment{no fidelity penalty for missing nodes}
+    \EndIf
+  \EndFor
+  \Statex \textbf{(b) Update $\mathbf{z}$:}
+  \State Solve $(\lambda\,L + \rho\,I)\,\mathbf{z} = \rho\,\bigl(\mathbf{x}^{(k+1)} + \mathbf{u}^{(k)}\bigr)$ 
+    \Comment{e.g. via sparse factorization or CG}
+  \Statex \textbf{(c) Dual variable update:}
+  \State $\mathbf{u}^{(k+1)} \gets \mathbf{u}^{(k)} + \bigl(\mathbf{x}^{(k+1)} - \mathbf{z}^{(k+1)}\bigr)$
+  \State \textbf{Check convergence:} 
+  \If{$\|\mathbf{x}^{(k+1)} - \mathbf{z}^{(k+1)}\|\!<\!\epsilon$ \;\textbf{and}\; $\|\mathbf{z}^{(k+1)}-\mathbf{z}^{(k)}\|\!<\!\epsilon$}
+      \State \textbf{break}
+  \EndIf
+\EndFor
+\State \Return $\mathbf{x}^{(\text{final})}$
+\end{algorithmic}
+\end{algorithm}
+
+\paragraph{Complexity.}
+\begin{itemize}
+    \item \emph{Per-iteration cost:} 
+      \begin{enumerate}
+         \item The $\mathbf{x}$-update is $O(N)$ (direct formulas).  
+         \item The $\mathbf{z}$-update requires solving $(\lambda L + \rho I)\mathbf{z}=\dots$ each iteration, which is typically $O(E)$--$O(N^2)$ depending on the solver and sparsity structure.
+      \end{enumerate}
+    \item \emph{Total:} 
+      Let $K_{\mathrm{ADMM}}$ be the iteration count. If we factor $(\lambda L + \rho I)$ once, we can do repeated back-substitution for $O(N)$ or $O(E)$ per iteration (depending on factorization vs. iterative methods). Thus total is roughly $O(K_{\mathrm{ADMM}} \times \text{factorization cost})$.
+\end{itemize}
+
+\paragraph{Space Complexity.} 
+For all three methods (Laplacian, Gradient, ADMM), we store:
+\begin{itemize}
+    \item $L$ (sparse) requiring $O(E)$ space. 
+    \item $\mathbf{x}, \mathbf{z}, \mathbf{u}$ vectors of length $N$.
+\end{itemize}
+
+
+%-----------------------------------------------------------------
+%       OPTIONAL: Additional remarks
+%-----------------------------------------------------------------
+\subsection{Additional Remarks}
+The choice of solver (ADMM vs.\ Gradient vs.\ Laplacian Interpolation) depends on data size and smoothness priors (Laplacian vs.\ total variation). ADMM handles non-smooth terms (like TV) effectively, while Gradient Descent is simpler to implement for purely quadratic objectives. The memory footprint is dominated by storing graph structures and factorizing $(\lambda\,L+\rho\,I)$. In practice, we also exploit parallelization and efficient sparse solvers to handle large sensor networks.
+
+
+
+%-----------------------------------------------------------------
 %                        VII. DISCUSSION
 %-----------------------------------------------------------------
 \section{Discussion}
@@ -743,9 +927,25 @@ this approach can offer more reliable air quality estimates, informing agencies 
 during severe wildfire events.
 
 %-----------------------------------------------------------------
+%                     VIII. CODE & DATA AVAILABILITY
+%-----------------------------------------------------------------
+
+\section{Code and Data Availability}
+
+\noindent
+\textbf{Code.} The Python source code, Jupyter notebooks, and solver implementations used for this study are available in a public GitHub repository:\\
+\url{https://github.com/ChestnutKurisu/CSE203B_Final_Project_WI25}.
+
+\vspace{1em}
+\noindent
+\textbf{Data.} The dataset used in our analysis---``Dataset\_PurpleAirSmoke\_Barkjohn\_3\_15\_23.zip''---can be accessed via the U.S. Government’s data catalog:\\
+\url{https://catalog.data.gov/dataset/dataset-correction-and-accuracy-of-purpleair-pm2-5-measurements-for-extreme-wildfire-smoke}.\\
+Originally published for Barkjohn \emph{et al.}’s study~\cite{Barkjohn2022}, it contains multiple CSV files with PurpleAir sensor records, reference monitor comparisons, and nowcasted data for wildfire smoke PM\textsubscript{2.5}. We harmonize these columns and build the sensor adjacency from the lat/lon fields as discussed in Section~\ref{sec:data}.
+
+
+%-----------------------------------------------------------------
 %                           REFERENCES
 %-----------------------------------------------------------------
-\bibliographystyle{plain}   % [UNCHANGED]
 \bibliography{yourbib}      % [UNCHANGED]
 
 \end{document}
