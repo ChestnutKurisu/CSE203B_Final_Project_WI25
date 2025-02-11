@@ -51,8 +51,6 @@ Below is a brief overview of the main files and directories:
 │   ├─ main.tex
 │   ├─ yourbib.bib
 │   ├─ UCSD_CSE_203B_Final_Project.pdf
-│   ├─ naaclhlt2019.sty
-│   └─ acl_natbib.bst
 │       # Contains the LaTeX source and final PDF of the project report.
 │
 ├─ README.md
