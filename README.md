@@ -35,6 +35,9 @@ Below is a brief overview of the main files and directories:
 │       # solver implementations (ADMM, gradient-based), baseline comparisons,
 │       # cross-validation loops, parameter sweeps, and result visualizations.
 │
+├─ requirements.txt
+│       # Only the libraries actually used in the notebook
+│
 ├─ figures/
 │   ├─ admm_confusion.png
 │   ├─ admm_lam_sweep.png
@@ -74,12 +77,12 @@ Below is a brief overview of the main files and directories:
    ```
 
 3. **Install packages**:  
-   The project primarily uses **pandas**, **numpy**, **scipy**, **networkx**, **pykrige**, **matplotlib**, **seaborn**, **sklearn**, **folium**, **geopy**, etc.  
+   The project primarily uses **pandas**, **numpy**, **scipy**, **networkx**, **pykrige**, **matplotlib**, **seaborn**, **sklearn**, **folium**, **geopy**, **branca**, **plotly**, and **selenium** (for automated map screenshots).  
+
    Please install them with:
    ```bash
    pip install -r requirements.txt
    ```
-   or manually (e.g., `pip install numpy pandas scipy networkx pykrige matplotlib seaborn folium geopy scikit-learn`).
 
 4. **Jupyter**:  
    Ensure you have **jupyter** or **jupyterlab** installed to open the main notebook.
