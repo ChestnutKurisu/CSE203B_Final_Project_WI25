@@ -56,7 +56,7 @@ Below is a brief overview of the main files and directories:
 │   ├─ UCSD_CSE_203B_Final_Project.pdf
 │       # Contains the LaTeX source and final PDF of the project report.
 │
-├─ README.md
+└─ README.md
 ```
 
 ----
