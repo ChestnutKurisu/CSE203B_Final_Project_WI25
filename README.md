@@ -127,7 +127,7 @@ Below is a brief overview of the main files and directories:
   3. **Baseline**: **Kriging**, **IDW**, **Nearest**, **Simple Avg** for comparison.
 
 - **Dataset**:  
-  - Real-world CSVs from **Barkjohn et al.** with corrected PurpleAir sensor data, T640 monitors, and reference PM$_\{2.5\}$ measurements covering multiple US locations under wildfire smoke conditions.
+  - Real-world CSVs from **Barkjohn et al.** with corrected PurpleAir sensor data, T640 monitors, and reference $\text{PM}_{2.5}$ measurements covering multiple US locations under wildfire smoke conditions.
   - Preprocessing merges lat/lon, timestamps, and filters out invalid or extreme saturations.
 
 - **Performance Metrics**:  
