@@ -118,7 +118,7 @@ Below is a brief overview of the main files and directories:
 
 - **Convex Formulation**:  
   The method solves the minimization problem:
-  $\min_{x\in \mathbb{R}^N} \;\;\frac{1}{2}\sum_{i\in \Omega}(x_i - y_i)^2 \;+\;\frac{\lambda}{2}x^T L x$
+  $\min_{x\in \mathbb{R}^N} \frac{1}{2}\sum_{i\in \Omega}(x_i - y_i)^2 +\frac{\lambda}{2}x^T L x$
   under a graph Laplacian regularization (or a total variation penalty $\sum_{(i,j)\in E} |x_i-x_j|$ for piecewise-smooth fields).
 
 - **Solvers**:
@@ -127,7 +127,7 @@ Below is a brief overview of the main files and directories:
   3. **Baseline**: **Kriging**, **IDW**, **Nearest**, **Simple Avg** for comparison.
 
 - **Dataset**:  
-  - Real-world CSVs from **Barkjohn et al.** with corrected PurpleAir sensor data, T640 monitors, and reference PM$_{2.5}$ measurements covering multiple US locations under wildfire smoke conditions.
+  - Real-world CSVs from **Barkjohn et al.** with corrected PurpleAir sensor data, T640 monitors, and reference PM$\_{2.5}$ measurements covering multiple US locations under wildfire smoke conditions.
   - Preprocessing merges lat/lon, timestamps, and filters out invalid or extreme saturations.
 
 - **Performance Metrics**:  
