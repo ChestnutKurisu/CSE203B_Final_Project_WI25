@@ -1,4 +1,4 @@
-# Wildfire Smoke PM2.5 Modeling with Convex Optimization and Low-Cost Sensors
+# Wildfire Smoke $\text{PM}_{2.5}$ Modeling with Convex Optimization and Low-Cost Sensors
 
 This repository contains the code and resources for my **CSE 203B WI25 (Convex Optimization) final project**, which focuses on **modeling $\text{PM}_{2.5}$ data from wildfire smoke events** using **convex optimization** techniques on a graph. By representing sensor measurements as a graph signal (with nodes as sensor locations and edges reflecting spatial adjacency), I apply various convex regularizers (e.g., Laplacian smoothing, total variation) and compare them to classical interpolation baselines such as **Kriging**, **IDW**, and **Nearest Neighbor**. I also implement and evaluate iterative solvers like **ADMM** and **gradient descent** to solve the resulting optimization problems.
 
