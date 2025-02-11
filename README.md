@@ -56,7 +56,6 @@ Below is a brief overview of the main files and directories:
 │       # Contains the LaTeX source and final PDF of the project report.
 │
 ├─ README.md
-└─ [Other support files, e.g., any config or style files...]
 ```
 
 ----
