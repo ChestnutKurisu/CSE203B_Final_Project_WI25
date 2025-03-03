@@ -94,7 +94,7 @@ Below is a brief overview of the main files and directories:
 This project relies on several real-world wildfire smoke datasets, including:
 - **Barkjohn et al. (2022) PurpleAir Smoke Measurements** \[[Link](https://www.mdpi.com/1424-8220/22/24/9669)\]
 - **Additional CSVs** from [Barkjohn2022DataRef] and **PurpleAir** [data use cases](https://www2.purpleair.com/pages/purpleair-data-use-cases)
-- (Optional) The open-source [\texttt{rapidfire} R package](https://github.com/raffscallion/rapidfire) \[[Zenodo v0.1.3](https://doi.org/10.5281/zenodo.7888562)\] for smoke exposure modeling
+- (Optional) The open-source [`rapidfire` R package](https://github.com/raffscallion/rapidfire) \[[Zenodo v0.1.3](https://doi.org/10.5281/zenodo.7888562)\] for smoke exposure modeling
 
 ### 1. Downloading/Obtaining the Data
 
