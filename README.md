@@ -106,7 +106,7 @@ This project relies on several real-world wildfire smoke datasets, including:
    - If you want additional PurpleAir sensor data beyond the Barkjohn corrections, see the official [PurpleAir Data Use Cases](https://www2.purpleair.com/pages/purpleair-data-use-cases). You can create an API key, then download historical data from PurpleAir’s site or from air quality repositories like [OpenAQ](https://openaq.org/).
 
 3. **Optional `rapidfire` Support**:
-   - [Raffuse & O’Neill’s \texttt{rapidfire} GitHub](https://github.com/raffscallion/rapidfire) and [Zenodo releases](https://doi.org/10.5281/zenodo.7888562) provide smoke modeling code. While not strictly required, you could integrate those datasets for additional cross-validation or extended comparisons.
+   - [Raffuse & O’Neill’s `rapidfire` GitHub](https://github.com/raffscallion/rapidfire) and [Zenodo releases](https://doi.org/10.5281/zenodo.7888562) provide smoke modeling code. While not strictly required, you could integrate those datasets for additional cross-validation or extended comparisons.
 
 **Because these files can be quite large**, they are **not included** directly in this repo. Once you’ve downloaded them, place the CSVs in a local folder (e.g., `data/`), making sure your paths match the ones in the Jupyter notebook.
 
