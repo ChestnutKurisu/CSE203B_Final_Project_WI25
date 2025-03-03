@@ -89,6 +89,43 @@ Below is a brief overview of the main files and directories:
 
 ----
 
+## Data Download and Usage
+
+This project relies on several real-world wildfire smoke datasets, including:
+- **Barkjohn et al. (2022) PurpleAir Smoke Measurements** \[[Link](https://www.mdpi.com/1424-8220/22/24/9669)\]
+- **Additional CSVs** from [Barkjohn2022DataRef] and **PurpleAir** [data use cases](https://www2.purpleair.com/pages/purpleair-data-use-cases)
+- (Optional) The open-source [\texttt{rapidfire} R package](https://github.com/raffscallion/rapidfire) \[[Zenodo v0.1.3](https://doi.org/10.5281/zenodo.7888562)\] for smoke exposure modeling
+
+### 1. Downloading/Obtaining the Data
+
+1. **Barkjohn et al. (2022) Dataset**:
+   - You may obtain the corrected PurpleAir CSVs and T640 reference data either from the [Sensors journal link](https://www.mdpi.com/1424-8220/22/24/9669) or by contacting the authors. 
+   - For your convenience, example CSVs like `AQS3yearT640compare.csv` or `Finaldataset_correcteddatasetwholding_10_26_22.csv` are mentioned in their supplementary materials/Zenodo references.
+
+2. **PurpleAir Raw Data**:
+   - If you want additional PurpleAir sensor data beyond the Barkjohn corrections, see the official [PurpleAir Data Use Cases](https://www2.purpleair.com/pages/purpleair-data-use-cases). You can create an API key, then download historical data from PurpleAir’s site or from air quality repositories like [OpenAQ](https://openaq.org/).
+
+3. **Optional `rapidfire` Support**:
+   - [Raffuse & O’Neill’s \texttt{rapidfire} GitHub](https://github.com/raffscallion/rapidfire) and [Zenodo releases](https://doi.org/10.5281/zenodo.7888562) provide smoke modeling code. While not strictly required, you could integrate those datasets for additional cross-validation or extended comparisons.
+
+**Because these files can be quite large**, they are **not included** directly in this repo. Once you’ve downloaded them, place the CSVs in a local folder (e.g., `data/`), making sure your paths match the ones in the Jupyter notebook.
+
+### 2. Loading Data in the Notebook
+
+After downloading, **update** the `DATA_FOLDER` path in the main notebook:
+
+```python
+# In the WildfireSmoke_PM25_ConvexOptimization_GraphInterpolation.ipynb
+DATA_FOLDER = "path/to/your/downloaded_csvs"
+
+# Example usage:
+df_aqs_t640 = load_csv_unify(os.path.join(DATA_FOLDER, "AQS3yearT640compare.csv"))
+df_final_corrected = load_csv_unify(os.path.join(DATA_FOLDER, "Finaldataset_correcteddatasetwholding_10_26_22.csv"))
+# ... etc.
+```
+
+----
+
 ## Usage
 
 1. **Open the main notebook**:
